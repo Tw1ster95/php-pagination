@@ -5,7 +5,11 @@
     $conn = new mysqli($config['host'], $config['name'], $config['pass'], $config['db']);
     if(!$conn) exit;
 
-    $pagination = new Pagination();
+    $pagination = new Pagination([
+        'perPage' => 5,
+        'usePrevNextBtns' => true,
+        'tooManyUseInput' => false
+    ]);
 
     $query = "SELECT * FROM test_table WHERE id < 50 OR id > 60";
 

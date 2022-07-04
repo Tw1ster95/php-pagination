@@ -1,12 +1,17 @@
 <?php
 class Pagination {
-	public function __construct($perPage = 20, $usePrevNextBtns = true)
+	public function __construct($settings = [
+        'perPage' => 20,
+        'usePrevNextBtns' => true,
+        'tooManyUseInput' => false
+    ])
 	{
         $this->currentPage = ($_REQUEST['page'] ?? 1) - 1;
         if($this->currentPage < 0) $this->currentPage = 0;
-        $this->perPage = $perPage;
+        $this->perPage = $settings['perPage'] ?? 20;
+        $this->usePrevNextBtns = $settings['usePrevNextBtns'] ?? true;
+        $this->tooManyUseInput = $settings['tooManyUseInput'] ?? false;
         $this->totalItems = 0;
-        $this->usePrevNextBtns = $usePrevNextBtns;
         $this->totalPages = 0;
         $this->nextPage = 0;
         $this->prevPage = 0;
@@ -29,6 +34,11 @@ class Pagination {
     public function setCurrentPage($page)
     {
         $this->currentPage = $page;
+    }
+
+    public function getCurrentPage()
+    {
+        return $this->currentPage;
     }
 
     public function setPerPage($perPage)
@@ -69,10 +79,29 @@ class Pagination {
     public function getPageButtonsHtml()
     {
         if(!$this->totalPages) return '';
+        $tooMany = $this->totalPages > 20 ? true : false;
         $html = "<ul class='pagination'>";
         if($this->usePrevNextBtns) $html .= "<li".($this->currentPage <= 0 ? " class='disabled'" : "")."><a href='{$this->url}page={$this->prevPage}'>{$this->prevBtnText}</a></li>";
-        for($i = 0; $i < $this->totalPages; $i++) {
-            $html .= "<li".($this->currentPage == $i ? " class='current'" : "")."><a href='{$this->url}page=".($i+1)."'>".($i+1)."</a></li>";
+        if($tooMany) {
+            if($this->tooManyUseInput) {
+                $html .= "<li><form method='GET' action='".$this->url."'><input type='number' name='page' min='0' max='$this->totalPages' value='".($this->currentPage+1)."'/></li><li><button type='submit' />Go</button></form></li>";
+            }
+            else {
+                for($i = 0; $i < $this->totalPages; $i++) {
+                    $diff = $this->currentPage - $i;
+                    if($i < 3 || $i >= $this->totalPages - 3 || ($diff < 2 && $diff > -2)) {
+                        $html .= "<li".($this->currentPage == $i ? " class='current'" : "")."><a href='{$this->url}page=".($i+1)."'>".($i+1)."</a></li>";
+                        continue;
+                    }
+                    $html .= "<li>...</li>";
+                    $i = ($i > $this->currentPage - 2) ? ($this->totalPages - 4) : ($this->currentPage - 2);
+                }
+            }
+        }
+        else {
+            for($i = 0; $i < $this->totalPages; $i++) {
+                $html .= "<li".($this->currentPage == $i ? " class='current'" : "")."><a href='{$this->url}page=".($i+1)."'>".($i+1)."</a></li>";
+            }
         }
         if($this->usePrevNextBtns) $html .= "<li".($this->currentPage >= ($this->totalPages-1) ? " class='disabled'" : "")."><a href='{$this->url}page={$this->nextPage}'>{$this->nextBtnText}</a></li>";
         $html .= "</ul>";
