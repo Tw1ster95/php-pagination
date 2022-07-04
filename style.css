@@ -1,0 +1,47 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+}
+
+table {
+    width: 70%;
+    margin: auto;
+}
+
+ul.pagination {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    gap: .125em;
+    width: 100%;
+    justify-content: center;
+    padding-top: 1em;
+}
+
+ul.pagination li a {
+    text-decoration: none;
+    color: #000;
+    padding: .25em;
+    border-style: solid;
+    border-width: 1px;
+    border-color: transparent;
+}
+
+ul.pagination li:hover a {
+    border-color: #000;
+}
+ul.pagination li.current a {
+    pointer-events: none;
+    border-color: #000;
+}
+
+ul.pagination li.disabled a {
+    pointer-events: none;
+    color: grey;
+}
